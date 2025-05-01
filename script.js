@@ -1,5 +1,5 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const API_BASE = "https://baab-34-87-96-145.ngrok-free.app/";
+    const API_BASE = "https://fe0d-34-16-164-82.ngrok-free.app/";
     // DOM Elements
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
