@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const API_BASE = "https://b508-34-169-78-177.ngrok-free.app/";
+    const API_BASE = "https://4c6c-34-125-188-185.ngrok-free.app/";
+
     // DOM Elements
     const sidebar = document.getElementById('sidebar');
     const mainContent = document.getElementById('main-content');
@@ -8,7 +9,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const chatbot = document.getElementById('chatbot');
     const welcomeContainer = document.getElementById('welcome-container');
     const welcomeUpload = document.getElementById('welcome-upload');
-    const welcomeExample = document.getElementById('welcome-example');
     const messageInput = document.getElementById('message-input');
     const sendButton = document.getElementById('send-button');
     const fileButton = document.getElementById('file-button');
@@ -19,13 +19,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const newChatBtn = document.getElementById('new-chat-btn');
     const clearConvos = document.getElementById('clear-convos');
     const chatList = document.getElementById('chat-list');
-    
+    const ocrSummaryContainer = document.getElementById('ocr-summary-container');
+    const ocrSummaryContent = document.getElementById('ocr-summary-content');
+
+
+
     let uploadedFile = null;
     let recentChats = [];
     let isRecording = false;
     let mediaRecorder = null;
     let audioChunks = [];
     let currentTheme = localStorage.getItem('theme') || 'light';
+    let uploadedFilePath = '';
     
     // Set initial theme
     if (currentTheme === 'dark') {
@@ -40,6 +45,7 @@ document.addEventListener('DOMContentLoaded', function() {
         localStorage.setItem('theme', isDark ? 'dark' : 'light');
     });
     
+
     function updateThemeIcon(isDark) {
         const icon = themeToggle.querySelector('i');
         if (isDark) {
@@ -50,19 +56,16 @@ document.addEventListener('DOMContentLoaded', function() {
             themeToggle.querySelector('span').textContent = 'Dark mode';
         }
     }
-    
+
     // Sidebar Toggle
-    menuToggle.addEventListener('click', function() {
-        sidebar.classList.toggle('open');
-        if (window.innerWidth <= 768) {
-            if (sidebar.classList.contains('open')) {
-                sidebar.style.left = '0';
-            } else {
-                sidebar.style.left = '-100%';
-            }
-        }
+    let isFullscreen = false;
+
+    // Fullscreen toggle on double-click
+    menuToggle.addEventListener('dblclick', function () {
+        const appContainer = document.querySelector('.app-container');
+        appContainer.classList.toggle('fullscreen-mode');
     });
-    
+
     // Responsive checks
     window.addEventListener('resize', function() {
         if (window.innerWidth > 768) {
@@ -71,7 +74,6 @@ document.addEventListener('DOMContentLoaded', function() {
             sidebar.style.left = '-100%';
         }
     });
-    
     // Message input auto-resize
     messageInput.addEventListener('input', function() {
         this.style.height = 'auto';
@@ -144,33 +146,48 @@ document.addEventListener('DOMContentLoaded', function() {
                 fileBadge.classList.remove('hidden');
                 welcomeContainer.classList.add('hidden');
                 addRecentChat(`${uploadedFile.name}`);
-                addMessage(`Uploaded ${uploadedFile.name}. What can you tell me about this document?`, 'user');
+                const ocrRes = await fetch(`${API_BASE}/ocr-to-json`, {
+                    method: 'POST',
+                    body: formData
+                });
+                addMessage(`Uploaded ${uploadedFile.name}`, 'user');
+                const ocrData = await ocrRes.json();
+                if (ocrData && typeof ocrData === 'object' ) {
+                    showOcrSummary(ocrData);
+                }
             } catch (err) {
                 console.error('Upload failed', err);
                 addMessage('Failed to upload file.', 'assistant');
             }
         }
     });
-    
-    // Example handling
-    welcomeExample.addEventListener('click', function() {
-        // Simulate uploading a sample document
-        uploadedFile = { name: 'sample_document.pdf' };
-        
-        // Update file badge
-        fileName.textContent = uploadedFile.name;
-        fileBadge.classList.remove('hidden');
-        
-        // Hide welcome screen
-        welcomeContainer.classList.add('hidden');
-        
-        // Add to recent chats
-        addRecentChat(`${uploadedFile.name}`);
-        
-        // Send automatic message about example
-        addMessage(`Let's try an example with sample_document.pdf. What's in this document?`, 'user');
-        processMessage(`Let's try an example with sample_document.pdf. What's in this document?`);
-    });
+
+    function showOcrSummary(data) {
+        ocrSummaryContainer.classList.remove('hidden');
+        ocrSummaryContent.innerHTML = "";
+
+        const box = document.createElement("div");
+        box.className = "result-box";
+
+        const table = document.createElement("table");
+
+        for (const [department, issue] of Object.entries(data)) {
+            const row = document.createElement("tr");
+
+            const deptCell = document.createElement("th");
+            deptCell.textContent = department;
+
+            const issueCell = document.createElement("td");
+            issueCell.textContent = issue;
+
+            row.appendChild(deptCell);
+            row.appendChild(issueCell);
+            table.appendChild(row);
+        }
+
+        box.appendChild(table);
+        ocrSummaryContent.appendChild(box);
+    }
     
     // Microphone handling
     micButton.addEventListener('click', toggleRecording);
@@ -284,6 +301,12 @@ document.addEventListener('DOMContentLoaded', function() {
             typingIndicator.remove();
         }
     }
+
+    function showOcrSummary(data) {
+        ocrSummaryContainer.classList.remove('hidden');
+        ocrSummaryContent.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+    }
+    
     
     
     // Function to process message and get response
@@ -303,6 +326,9 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await res.json();
             hideTypingIndicator();
             addMessage(data.answer || 'No answer returned from backend.', 'assistant');
+            if (typeof data.answer === 'object') {
+                showOcrSummary(data.answer);
+            }
         } catch (err) {
             hideTypingIndicator();
             console.error('Error contacting backend:', err);
@@ -400,19 +426,35 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     // Function to load a chat
-    function loadChat(chatId) {
+    async function loadChat(chatId) {
         const chat = recentChats.find(chat => chat.id === chatId);
         if (chat) {
-            // In a real app, this would load chat history from storage or API
-            // For demo, just simulate loading
             uploadedFile = { name: chat.title };
             fileName.textContent = uploadedFile.name;
             fileBadge.classList.remove('hidden');
             welcomeContainer.classList.add('hidden');
-            
-            // Clear current chat and add a welcome message
+
             chatbot.innerHTML = '';
-            addMessage(`I've loaded your conversation about ${chat.title}. How can I help you with this document?`, 'assistant');
+
+            try {
+                const res = await fetch(`${API_BASE}/history/${chat.title}`);
+                console.log(res)
+                const history = await res.json();
+
+                console.log(history)
+
+                if (Array.isArray(history)) {
+                    history.reverse().forEach(entry => {
+                        addMessage(entry.question, 'user');
+                        addMessage(entry.answer, 'assistant');
+                    });
+                } else {
+                    addMessage("Could not load chat history.", 'assistant');
+                }
+            } catch (err) {
+                console.error("Failed to load history:", err);
+                addMessage("Failed to fetch chat history from server.", 'assistant');
+            }
         }
     }
     
