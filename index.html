@@ -21,7 +21,6 @@
                 <i class="fas fa-plus"></i>
                 <span>New chat</span>
             </button>
-            
             <div class="sidebar-section">
                 <div class="section-header">Recent chats</div>
                 <div id="chat-list">
@@ -31,7 +30,6 @@
                     </div>
                 </div>
             </div>
-            
             <div class="sidebar-footer">
                 <button id="clear-convos" class="sidebar-button secondary">
                     <i class="fas fa-trash-alt"></i>
@@ -70,13 +68,9 @@
                             <i class="fas fa-upload"></i>
                             <span>Upload document</span>
                         </button>
-                        <button id="welcome-example" class="welcome-button secondary">
-                            <i class="fas fa-lightbulb"></i>
-                            <span>Try an example</span>
-                        </button>
                     </div>
                 </div>
-                
+
                 <div id="chatbot">
                     <div class="chat-turn">
                         <div class="user-message">
@@ -97,36 +91,53 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Input Area -->
-            <div class="input-area">
-                <div id="input-container">
-                    <textarea id="message-input" placeholder="Message MultiLipi..." rows="1"></textarea>
-                    <div class="input-buttons">
-                        <button id="file-button" class="icon-button" title="Upload document">
-                            <i class="fas fa-paperclip"></i>
-                        </button>
-                        <button id="mic-button" class="icon-button" title="Voice input">
-                            <i class="fas fa-microphone"></i>
-                        </button>
-                        <button id="send-button" class="icon-button primary" title="Send message">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
+                    <div id="ocr-summary-container" class="result-box hidden">
+                        <h3 style="margin-bottom: 16px; color: white;">Detected Issues (via OCR)</h3>
+                        <table id="ocr-summary-table">
+                            <thead>
+                                <tr>
+                                    <th>Department</th>
+                                    <th>Issue</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ocr-summary-content">
+                                <!-- Filled dynamically -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div class="input-footer">
-                    <p>MultiLipi can make mistakes. Consider checking important information.</p>
+
+                <!-- OCR Summary Container as Result Box -->
+
+
+                <!-- Input Area -->
+                <div class="input-area">
+                    <div id="input-container">
+                        <textarea id="message-input" placeholder="Message MultiLipi..." rows="1"></textarea>
+                        <div class="input-buttons">
+                            <button id="file-button" class="icon-button" title="Upload document">
+                                <i class="fas fa-paperclip"></i>
+                            </button>
+                            <button id="mic-button" class="icon-button" title="Voice input">
+                                <i class="fas fa-microphone"></i>
+                            </button>
+                            <button id="send-button" class="icon-button primary" title="Send message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="input-footer">
+                        <p>MultiLipi can make mistakes. Consider checking important information.</p>
+                    </div>
+
+                    <!-- Hidden Audio Element -->
+                    <div id="audio-container" class="hidden">
+                        <audio id="audio-input" controls></audio>
+                    </div>
+
+                    <!-- Hidden File Upload -->
+                    <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,.json" class="hidden">
                 </div>
-                
-                <!-- Hidden Audio Element -->
-                <div id="audio-container" class="hidden">
-                    <audio id="audio-input" controls></audio>
-                </div>
-                
-                <!-- Hidden File Upload -->
-                <input type="file" id="file-upload" accept=".pdf,.jpg,.jpeg,.png,.json" class="hidden">
             </div>
         </div>
     </div>
