@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let isFullscreen = false;
 
     // Fullscreen toggle on double-click
-    menuToggle.addEventListener('dblclick', function () {
+    menuToggle.addEventListener('click', function () {
         const appContainer = document.querySelector('.app-container');
         appContainer.classList.toggle('fullscreen-mode');
     });
