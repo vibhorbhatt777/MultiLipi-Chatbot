@@ -505,6 +505,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // If mobile, hide sidebar initially
     if (window.innerWidth <= 768) {
-        sidebar.style.left = '-100%';
+        sidebar.style.left = '100%';
     }
 });
