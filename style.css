@@ -209,7 +209,7 @@ body {
 }
 
 .file-badge {
-    display: flex;
+    display: none;
     align-items: center;
     gap: 0.5rem;
     padding: 0.375rem 0.75rem;
@@ -547,6 +547,7 @@ body {
     padding: 20px;
     animation: fadeIn 1s ease-in-out;
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
+    display:none;
 }
 
 .result-box table {
@@ -565,6 +566,13 @@ body {
 .result-box th {
     font-weight: 600;
     width: 40%;
+}
+.result-box.visible {
+    display: block;
+}
+
+.hidden {
+    display: none;
 }
 
 
