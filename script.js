@@ -162,65 +162,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showOcrSummary(data) {
-        //const container = document.getElementById('welcome-container');
         ocrSummaryContainer.classList.remove('hidden');
         ocrSummaryContent.innerHTML = "";
 
-        
-        const table = document.createElement('table');
-        table.style.width = '100%';
-        table.style.borderCollapse = 'collapse';
-        table.style.borderRadius = '8px';
-        table.style.overflow = 'hidden';
-        table.style.marginTop = '20px';
-        table.style.fontFamily = 'Segoe UI, Arial, sans-serif';
-        table.style.fontSize = '15px';
-        table.style.backgroundColor = '#fff';
-        table.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.1)';
+        const box = document.createElement("div");
+        box.className = "result-box";
 
-        const thead = table.createTHead();
-        const headerRow = thead.insertRow();
+        const table = document.createElement("table");
 
-        const headers = ['Departments', 'Problems'];
-        headers.forEach(text => {
-            const th = document.createElement('th');
-            th.textContent = text;
-            th.style.backgroundColor = '#007bff';
-            th.style.color = 'white';
-            th.style.padding = '14px 18px';
-            th.style.textAlign = 'left';
-            th.style.fontWeight = '600';
-            th.style.letterSpacing = '0.5px';
-            headerRow.appendChild(th);
-        });
-        const tbody = table.createTBody();
-        Object.entries(data).forEach(([key, value], index) => {
-            const row = tbody.insertRow();
+        for (const [department, issue] of Object.entries(data)) {
+            const row = document.createElement("tr");
 
-            // Zebra striping
-            row.style.backgroundColor = index % 2 === 0 ? '#f7f9fc' : '#ffffff';
-            row.style.transition = 'background-color 0.3s';
+            const deptCell = document.createElement("th");
+            deptCell.textContent = department;
 
-            // Hover effect
-            row.addEventListener('mouseover', () => {
-                row.style.backgroundColor = '#e9f2ff';
-            });
-            row.addEventListener('mouseout', () => {
-                row.style.backgroundColor = index % 2 === 0 ? '#f7f9fc' : '#ffffff';
-            });
+            const issueCell = document.createElement("td");
+            issueCell.textContent = issue;
 
-            const deptCell = row.insertCell();
-            deptCell.textContent = key;
-            deptCell.style.padding = '14px 18px';
+            row.appendChild(deptCell);
+            row.appendChild(issueCell);
+            table.appendChild(row);
+        }
 
-            const issueCell = row.insertCell();
-            issueCell.textContent = value;
-            issueCell.style.padding = '14px 18px';
-        });
-
-        ocrSummaryContent.appendChild(table);
+        box.appendChild(table);
+        ocrSummaryContent.appendChild(box);
     }
-    showOcrSummary(data);
+    
     // Microphone handling
     micButton.addEventListener('click', toggleRecording);
     
@@ -338,7 +305,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ocrSummaryContainer.classList.remove('hidden');
         ocrSummaryContent.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
     }
-
+    
     
     
     // Function to process message and get response
