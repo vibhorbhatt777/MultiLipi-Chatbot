@@ -547,8 +547,6 @@ body {
     padding: 20px;
     animation: fadeIn 1s ease-in-out;
     box-shadow: 0 0 20px rgba(0,0,0,0.2);
-    display: none;
-    
 }
 
 .result-box table {
@@ -568,14 +566,6 @@ body {
     font-weight: 600;
     width: 40%;
 }
-.result-box.visible {
-    display: block;
-}
-
-.hidden {
-    display: none;
-}
-
 
 
 .header-button {
