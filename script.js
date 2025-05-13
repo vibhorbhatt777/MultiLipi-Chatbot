@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const ocrSummaryContent = document.getElementById('ocr-summary-content');
 
 
-
     let uploadedFile = null;
     let recentChats = [];
     let isRecording = false;
@@ -163,7 +162,8 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     function showOcrSummary(data) {
-       ocrSummaryContainer.classList.remove('hidden');
+        //const container = document.getElementById('welcome-container');
+        ocrSummaryContainer.classList.remove('hidden');
         ocrSummaryContent.innerHTML = "";
 
         
@@ -221,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
         ocrSummaryContent.appendChild(table);
     }
     showOcrSummary(data);
-    
     // Microphone handling
     micButton.addEventListener('click', toggleRecording);
     
@@ -339,7 +338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         ocrSummaryContainer.classList.remove('hidden');
         ocrSummaryContent.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
     }
-    
+
     
     
     // Function to process message and get response
@@ -460,36 +459,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to load a chat
     async function loadChat(chatId) {
-        const chat = recentChats.find(chat => chat.id === chatId);
-        if (chat) {
-            uploadedFile = { name: chat.title };
-            fileName.textContent = uploadedFile.name;
-            fileBadge.classList.remove('hidden');
-            welcomeContainer.classList.add('hidden');
+    const chat = recentChats.find(chat => chat.id === chatId);
+    if (chat) {
+        uploadedFile = { name: chat.title };
+        fileName.textContent = uploadedFile.name;
+        fileBadge.classList.remove('hidden');
+        welcomeContainer.classList.add('hidden');
 
-            chatbot.innerHTML = '';
+        chatbot.innerHTML = '';
 
-            try {
-                const res = await fetch(`${API_BASE}/history/${chat.title}`);
-                console.log(res)
-                const history = await res.json();
+        try {
+            const res = await fetch(`${API_BASE}/history/${chat.title}`);
 
-                console.log(history)
+            const contentType = res.headers.get("content-type") || "";
+            const rawText = await res.text();
+            console.log("Raw response text:", rawText);
 
-                if (Array.isArray(history)) {
-                    history.reverse().forEach(entry => {
-                        addMessage(entry.question, 'user');
-                        addMessage(entry.answer, 'assistant');
-                    });
-                } else {
-                    addMessage("Could not load chat history.", 'assistant');
-                }
-            } catch (err) {
-                console.error("Failed to load history:", err);
-                addMessage("Failed to fetch chat history from server.", 'assistant');
+            if (!contentType.includes("application/json")) {
+                throw new Error("Expected JSON but got something else");
             }
+
+            const history = JSON.parse(rawText);
+
+            if (Array.isArray(history)) {
+                history.reverse().forEach(entry => {
+                    addMessage(entry.question, 'user');
+                    addMessage(entry.answer, 'assistant');
+                });
+            } else {
+                addMessage("Could not load chat history.", 'assistant');
+            }
+        } catch (err) {
+            console.error("Failed to load history:", err);
+            addMessage("Failed to fetch chat history from server.", 'assistant');
         }
     }
+}
+
     
     // New chat button
     newChatBtn.addEventListener('click', function() {
